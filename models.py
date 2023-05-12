@@ -11,9 +11,9 @@ import torch.nn as nn
 from torch.nn import Conv1d, ConvTranspose1d, Conv2d
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
 
-import activations
-from utils import init_weights, get_padding
-from alias_free_torch import *
+from .activations import Snake, SnakeBeta
+from .utils import init_weights, get_padding
+from .alias_free_torch import *
 
 LRELU_SLOPE = 0.1
 
@@ -48,13 +48,13 @@ class AMPBlock1(torch.nn.Module):
         if activation == 'snake': # periodic nonlinearity with snake function and anti-aliasing
             self.activations = nn.ModuleList([
                 Activation1d(
-                    activation=activations.Snake(channels, alpha_logscale=h.snake_logscale))
+                    activation=Snake(channels, alpha_logscale=h.snake_logscale))
                 for _ in range(self.num_layers)
             ])
         elif activation == 'snakebeta': # periodic nonlinearity with snakebeta function and anti-aliasing
             self.activations = nn.ModuleList([
                 Activation1d(
-                    activation=activations.SnakeBeta(channels, alpha_logscale=h.snake_logscale))
+                    activation=SnakeBeta(channels, alpha_logscale=h.snake_logscale))
                  for _ in range(self.num_layers)
             ])
         else:
@@ -96,13 +96,13 @@ class AMPBlock2(torch.nn.Module):
         if activation == 'snake': # periodic nonlinearity with snake function and anti-aliasing
             self.activations = nn.ModuleList([
                 Activation1d(
-                    activation=activations.Snake(channels, alpha_logscale=h.snake_logscale))
+                    activation=Snake(channels, alpha_logscale=h.snake_logscale))
                 for _ in range(self.num_layers)
             ])
         elif activation == 'snakebeta': # periodic nonlinearity with snakebeta function and anti-aliasing
             self.activations = nn.ModuleList([
                 Activation1d(
-                    activation=activations.SnakeBeta(channels, alpha_logscale=h.snake_logscale))
+                    activation=SnakeBeta(channels, alpha_logscale=h.snake_logscale))
                  for _ in range(self.num_layers)
             ])
         else:
@@ -154,10 +154,10 @@ class BigVGAN(torch.nn.Module):
 
         # post conv
         if h.activation == "snake": # periodic nonlinearity with snake function and anti-aliasing
-            activation_post = activations.Snake(ch, alpha_logscale=h.snake_logscale)
+            activation_post = Snake(ch, alpha_logscale=h.snake_logscale)
             self.activation_post = Activation1d(activation=activation_post)
         elif h.activation == "snakebeta": # periodic nonlinearity with snakebeta function and anti-aliasing
-            activation_post = activations.SnakeBeta(ch, alpha_logscale=h.snake_logscale)
+            activation_post = SnakeBeta(ch, alpha_logscale=h.snake_logscale)
             self.activation_post = Activation1d(activation=activation_post)
         else:
             raise NotImplementedError("activation incorrectly specified. check the config file and look for 'activation'.")
